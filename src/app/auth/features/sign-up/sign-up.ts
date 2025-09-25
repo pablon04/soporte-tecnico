@@ -36,6 +36,7 @@ export default class SignUp {
       });
 
       if (authResponse.error) throw authResponse.error;
+      console.log(authResponse);
 
       alert('Por favor revisa tu correo!');
     } catch (error) {
