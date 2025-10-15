@@ -11,6 +11,14 @@ export default[
         loadComponent: () => import('../log-in/log-in')
     },
     {
+        path: 'password-recovery',
+        loadComponent: () => import('../password-recovery/password-recovery')
+    },
+    {
+        path: 'update-password',
+        loadComponent: () => import('../update-password/update-password')
+    },
+    {
         path: '**',
         redirectTo: 'log-in'
     }

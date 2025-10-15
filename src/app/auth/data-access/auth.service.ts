@@ -29,7 +29,13 @@ export class AuthService {
         return this._supabaseClient.auth.signOut();
     }
 
+    resetPasswordForEmail(email: string) {
+        return this._supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth/update-password`
+        });
+    }
 
-
-
+    updatePassword(password: string) {
+        return this._supabaseClient.auth.updateUser({ password });
+    }
 }

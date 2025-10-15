@@ -17,7 +17,7 @@
           <form class="space-y-4 md:space-y-6" [formGroup]="form" (ngSubmit)="submit()">
             <div>
               <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >Tú email</label
+                >Tu email</label
               >
               <input
                 type="email"
@@ -28,6 +28,16 @@
                 required=""
                 formControlName="email"
               />
+              @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                  @if (form.get('email')?.errors?.['required']) {
+                    El email es requerido.
+                  }
+                  @if (form.get('email')?.errors?.['email']) {
+                    Por favor ingresa un email válido.
+                  }
+                </p>
+              }
             </div>
             <div>
               <label
@@ -44,14 +54,38 @@
                 required=""
                 formControlName="password"
               />
+              @if (form.get('password')?.invalid && form.get('password')?.touched) {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                  @if (form.get('password')?.errors?.['required']) {
+                    La contraseña es requerida.
+                  }
+                  @if (form.get('password')?.errors?.['minlength']) {
+                    La contraseña debe tener al menos 6 caracteres.
+                  }
+                </p>
+              }
             </div>
             
             <button
               type="submit"
               class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium bg-green-500 rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              [disabled]="form.invalid || isLoading"
             >
-              Crear Cuenta
+              @if (isLoading) {
+                Creando cuenta...
+              } @else {
+                Crear Cuenta
+              }
             </button>
+
+            @if (message) {
+              <div class="p-4 mb-4 text-sm rounded-lg" 
+                   [class]="message.includes('Error') || message.includes('error') || message.includes('débil') || message.includes('registrado') ? 'text-red-800 bg-red-50 dark:bg-gray-800 dark:text-red-400' : 'text-green-800 bg-green-50 dark:bg-gray-800 dark:text-green-400'">
+                {{ message }}
+              </div>
+            }
+
+
             <p class="text-sm font-light text-gray-500 dark:text-gray-400">
               ¿Tienes una cuenta?
               <a routerLink="../log-in" class="font-medium text-primary-600 text-green-500 hover:underline dark:text-primary-500"
