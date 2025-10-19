@@ -84,13 +84,37 @@ export class TicketService {
 
   // Obtener un ticket específico
   async getTicketById(id: string): Promise<{ data: Ticket | null; error: any }> {
-    const { data, error } = await this._supabase
-      .from('tickets')
-      .select('*')
-      .eq('id', id)
-      .single();
+    console.log('🔍 Buscando ticket con ID:', id);
     
-    return { data, error };
+    try {
+      // Verificar usuario autenticado primero
+      const { data: { user } } = await this._supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('❌ Usuario no autenticado');
+        return { data: null, error: { message: 'Usuario no autenticado' } };
+      }
+
+      console.log(`👤 Usuario autenticado: ${user.id}`);
+      
+      // Quitar el filtro user_id ya que RLS se encarga de la seguridad
+      const { data, error } = await this._supabase
+        .from('tickets')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error('❌ Error obteniendo ticket:', error);
+        return { data: null, error };
+      }
+      
+      console.log('✅ Ticket encontrado:', data);
+      return { data, error: null };
+    } catch (error) {
+      console.error('❌ Exception obteniendo ticket:', error);
+      return { data: null, error };
+    }
   }
 
   // Crear nuevo ticket
@@ -118,14 +142,27 @@ export class TicketService {
 
   // Actualizar ticket
   async updateTicket(id: string, updateData: UpdateTicketData): Promise<{ data: Ticket | null; error: any }> {
-    const { data, error } = await this._supabase
-      .from('tickets')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
+    console.log('📝 Actualizando ticket:', id, 'con datos:', updateData);
+    
+    try {
+      const { data, error } = await this._supabase
+        .from('tickets')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
 
-    return { data, error };
+      if (error) {
+        console.error('❌ Error actualizando ticket:', error);
+        return { data: null, error };
+      }
+
+      console.log('✅ Ticket actualizado:', data);
+      return { data, error: null };
+    } catch (error) {
+      console.error('❌ Exception actualizando ticket:', error);
+      return { data: null, error };
+    }
   }
 
   // Eliminar ticket
@@ -142,11 +179,26 @@ export class TicketService {
 
   // Obtener comentarios de un ticket
   async getTicketComments(ticketId: string): Promise<{ data: TicketComment[] | null; error: any }> {
-    return await this._supabase
-      .from('ticket_comments')
-      .select('*')
-      .eq('ticket_id', ticketId)
-      .order('created_at', { ascending: true });
+    console.log('🔍 Buscando comentarios para ticket:', ticketId);
+    
+    try {
+      const { data, error } = await this._supabase
+        .from('ticket_comments')
+        .select('*')
+        .eq('ticket_id', ticketId)
+        .order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('❌ Error obteniendo comentarios:', error);
+        return { data: null, error };
+      }
+      
+      console.log('✅ Comentarios encontrados:', data?.length || 0);
+      return { data, error: null };
+    } catch (error) {
+      console.error('❌ Exception obteniendo comentarios:', error);
+      return { data: null, error };
+    }
   }
 
   // Crear comentario

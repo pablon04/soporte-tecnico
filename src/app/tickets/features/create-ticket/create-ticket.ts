@@ -24,8 +24,8 @@ export default class CreateTicket {
   isLoading = false;
 
   form = this._formBuilder.group<CreateTicketForm>({
-    title: this._formBuilder.control(null, [Validators.required, Validators.minLength(5)]),
-    description: this._formBuilder.control(null, [Validators.required, Validators.minLength(10)]),
+    title: this._formBuilder.control(null, [Validators.required, Validators.minLength(2)]),
+    description: this._formBuilder.control(null, [Validators.required, Validators.minLength(2)]),
     priority: this._formBuilder.control('Media' as 'Media', [Validators.required])
   });
 

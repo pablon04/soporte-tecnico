@@ -35,8 +35,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Tickets de Soporte</h2>
-        
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Tickets de Soporte
+          </h2>
         </div>
       </div>
       
@@ -101,21 +102,20 @@
         </table>
     </div>
 
-      <!-- Error State -->
+      <!-- Estados después de la tabla -->
       @if (error && !isLoading) {
-        <div class="text-center py-12">
+        <div class="px-6 py-8 text-center">
           <p class="text-red-600 dark:text-red-400 mb-4">{{ error }}</p>
           <button 
-            (click)="loadTickets()"
+            (click)="loadTickets(true)"
             class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
             Reintentar
           </button>
         </div>
       }
 
-      <!-- Empty State -->
       @if (tickets.length === 0 && !isLoading && !error) {
-        <div class="text-center py-12">
+        <div class="px-6 py-8 text-center">
           <p class="text-gray-500 dark:text-gray-400">No hay tickets disponibles</p>
           <button 
             routerLink="create"
