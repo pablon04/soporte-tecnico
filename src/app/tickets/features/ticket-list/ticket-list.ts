@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../auth/data-access/auth.service';
@@ -10,34 +10,60 @@ import { TicketService, Ticket } from '../../data-access/ticket.service';
   templateUrl: './ticket-list.html',
   styleUrl: './ticket-list.css'
 })
-export default class TicketList implements OnInit {
+export default class TicketList implements OnInit, OnDestroy {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _ticketService = inject(TicketService);
+  private _cdr = inject(ChangeDetectorRef);
 
   tickets: Ticket[] = [];
-  isLoading = true;
+  isLoading = false;
   error: string | null = null;
 
-  async ngOnInit() {
-    await this.loadTickets();
+  constructor() {
+    // Exponer método de debug globalmente
+    (window as any).debugTickets = () => this.debugTickets();
   }
 
-  async loadTickets() {
+  async ngOnInit() {
+    console.log('TicketList ngOnInit - iniciando carga inicial');
+    // Cargar inmediatamente sin delays
+    this.loadTickets(true);
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
+  }
+
+  async loadTickets(forceReload: boolean = false) {
+    console.log('🚀 Iniciando carga de tickets...');
+    
+    this.isLoading = true;
+    this.error = null;
+    
+    // Forzar detección de cambios para mostrar loading inmediatamente
+    this._cdr.detectChanges();
+    
     try {
-      this.isLoading = true;
-      this.error = null;
+      const { data, error } = await this._ticketService.getUserTickets(!forceReload);
       
-      const { data, error } = await this._ticketService.getUserTickets();
+      if (error) {
+        console.error('❌ Error from service:', error);
+        throw error;
+      }
       
-      if (error) throw error;
+      console.log(`✅ ${data?.length || 0} tickets cargados correctamente`);
       
+      // Asignar datos y forzar actualización inmediata
       this.tickets = data || [];
-    } catch (error) {
-      console.error('Error loading tickets:', error);
-      this.error = 'Error al cargar los tickets. Por favor intenta de nuevo.';
-    } finally {
       this.isLoading = false;
+      this._cdr.detectChanges();
+      
+    } catch (error: any) {
+      console.error(`❌ Error cargando tickets:`, error);
+      this.error = error?.message || 'Error al cargar los tickets. Por favor intenta de nuevo.';
+      this.isLoading = false;
+      this._cdr.detectChanges();
     }
   }
 
@@ -73,6 +99,32 @@ export default class TicketList implements OnInit {
       this._router.navigateByUrl('/auth/log-in');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+    }
+  }
+
+  onRefreshTickets() {
+    console.log('🔄 Actualizando tickets...');
+    this.loadTickets(true);
+  }
+
+  // Método de debug - exponer al window para testing
+  async debugTickets() {
+    const { data: { user } } = await this._ticketService['_supabase'].auth.getUser();
+    console.log('Current user:', user);
+    
+    const { data, error } = await this._ticketService['_supabase']
+      .from('tickets')
+      .select('*');
+    
+    console.log('All tickets (no filter):', { data, error });
+    
+    if (user) {
+      const { data: userTickets, error: userError } = await this._ticketService['_supabase']
+        .from('tickets')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      console.log('User tickets:', { userTickets, userError });
     }
   }
 }

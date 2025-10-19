@@ -46,11 +46,40 @@ export class TicketService {
   // =================== TICKETS ===================
   
   // Obtener todos los tickets del usuario
-  async getUserTickets(): Promise<{ data: Ticket[] | null; error: any }> {
-    return await this._supabase
-      .from('tickets')
-      .select('*')
-      .order('created_at', { ascending: false });
+  async getUserTickets(useCache: boolean = true): Promise<{ data: Ticket[] | null; error: any }> {
+    console.log('🔍 Servicio: Iniciando getUserTickets');
+    
+    try {
+      // Verificar usuario autenticado
+      const { data: { user } } = await this._supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('❌ No user found');
+        return { data: null, error: { message: 'Usuario no autenticado' } };
+      }
+
+      console.log(`🎯 Obteniendo tickets para usuario: ${user.id}`);
+
+      // Ejecutar consulta optimizada - solo campos necesarios
+      const { data, error } = await this._supabase
+        .from('tickets')
+        .select('id, title, description, status, priority, user_id, created_at, updated_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20); // Reducir a 20 para cargar más rápido
+
+      if (error) {
+        console.error('❌ Error en consulta:', error);
+        return { data: null, error };
+      }
+
+      console.log(`✅ ${data?.length || 0} tickets encontrados`);
+      return { data, error: null };
+      
+    } catch (error) {
+      console.error(`❌ Exception:`, error);
+      return { data: null, error };
+    }
   }
 
   // Obtener un ticket específico
