@@ -1,0 +1,171 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+      <button 
+        routerLink="/ticket"
+        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium">
+        ← Volver a tickets
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">Cargando ticket...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !isLoading) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <p class="text-red-600">{{ error }}</p>
+      </div>
+    }
+
+    @if (ticket && !isLoading) {
+      <!-- Ticket Info -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start gap-4">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Ticket #{{ ticket.id.slice(0, 8) }} - {{ ticket.title }}
+              </h1>
+              <div class="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <span>Creado: {{ ticket.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0 flex-wrap">
+              <span [class]="getStatusClass(ticket.status)" 
+                    class="px-3 py-1 text-sm font-medium rounded-full">
+                {{ ticket.status }}
+              </span>
+              <span [class]="getPriorityClass(ticket.priority)" 
+                    class="px-3 py-1 text-sm font-medium rounded-full">
+                {{ ticket.priority }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="px-6 py-4">
+          <h3 class="font-medium text-gray-900 dark:text-white mb-3">Descripción:</h3>
+          <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ ticket.description }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+          <div class="flex justify-between items-center">
+            <div class="flex gap-2">
+              <h4 class="font-medium text-gray-900 dark:text-white mr-4">Cambiar estado:</h4>
+              <button 
+                (click)="updateTicketStatus('Abierto')"
+                [disabled]="isUpdatingStatus || ticket.status === 'Abierto'"
+                class="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white rounded transition-colors">
+                Abierto
+              </button>
+              <button 
+                (click)="updateTicketStatus('En progreso')"
+                [disabled]="isUpdatingStatus || ticket.status === 'En progreso'"
+                class="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 text-white rounded transition-colors">
+                En progreso
+              </button>
+              <button 
+                (click)="updateTicketStatus('Cerrado')"
+                [disabled]="isUpdatingStatus || ticket.status === 'Cerrado'"
+                class="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-colors">
+                Cerrado
+              </button>
+            </div>
+            <button 
+              (click)="deleteTicket()"
+              class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded transition-colors">
+              Eliminar Ticket
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Comentarios ({{ comments.length }})
+          </h2>
+        </div>
+        
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+          @for (comment of comments; track comment.id) {
+            <div class="px-6 py-4">
+              <div class="flex justify-between items-start mb-2">
+                <div class="font-medium text-gray-900 dark:text-white">
+                  {{ comment.author_name }}
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ comment.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              </div>
+              <p class="text-gray-700 dark:text-gray-300">{{ comment.message }}</p>
+            </div>
+          } @empty {
+            <div class="px-6 py-8 text-center">
+              <p class="text-gray-500 dark:text-gray-400">No hay comentarios aún</p>
+            </div>
+          }
+        </div>
+        
+        <!-- Add Comment Form -->
+        @if (ticket.status !== 'Cerrado') {
+          <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+            <h3 class="font-medium text-gray-900 dark:text-white mb-3">Agregar comentario:</h3>
+            <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="space-y-3">
+              <textarea 
+                formControlName="message"
+                rows="3"
+                placeholder="Escribe tu comentario aquí..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-600 dark:border-gray-500 dark:text-white dark:placeholder-gray-400"
+              ></textarea>
+              @if (commentForm.get('message')?.invalid && commentForm.get('message')?.touched) {
+                <p class="text-sm text-red-600 dark:text-red-400">
+                  @if (commentForm.get('message')?.errors?.['required']) {
+                    El comentario es requerido.
+                  }
+                  @if (commentForm.get('message')?.errors?.['minlength']) {
+                    El comentario debe tener al menos 5 caracteres.
+                  }
+                </p>
+              }
+              <button 
+                type="submit"
+                [disabled]="commentForm.invalid || isAddingComment"
+                class="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                @if (isAddingComment) {
+                  Agregando...
+                } @else {
+                  Agregar Comentario
+                }
+              </button>
+            </form>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Ticket Not Found -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          Ticket no encontrado
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">
+          El ticket que buscas no existe o ha sido eliminado.
+        </p>
+        <button 
+          routerLink="/ticket"
+          class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+          Volver a tickets
+        </button>
+      </div>
+    }
+  </div>
+</div>

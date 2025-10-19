@@ -46,7 +46,7 @@ export default class LogIn {
       this.message = 'Sesión iniciada exitosamente. Redirigiendo...';
       
       setTimeout(() => {
-        this._router.navigateByUrl('/');
+        this._router.navigateByUrl('/ticket');
       }, 1000);
 
     } catch (error) {
