@@ -6,7 +6,7 @@ export interface Ticket {
   title: string;
   description: string;
   status: 'Abierto' | 'En progreso' | 'Cerrado';
-  priority: 'Baja' | 'Media' | 'Alta';
+  department: string;
   user_id: string;
   created_at: string;
   updated_at: string;
@@ -24,14 +24,14 @@ export interface TicketComment {
 export interface CreateTicketData {
   title: string;
   description: string;
-  priority: 'Baja' | 'Media' | 'Alta';
+  department: string;
 }
 
 export interface UpdateTicketData {
   title?: string;
   description?: string;
   status?: 'Abierto' | 'En progreso' | 'Cerrado';
-  priority?: 'Baja' | 'Media' | 'Alta';
+  department?: string;
 }
 
 export interface CreateCommentData {
@@ -45,7 +45,53 @@ export class TicketService {
 
   // =================== TICKETS ===================
   
-  // Obtener todos los tickets del usuario
+  // Obtener tickets según el rol del usuario (departamento o admin)
+  async getTickets(useCache: boolean = true): Promise<{ data: Ticket[] | null; error: any }> {
+    console.log('🔍 Servicio: Iniciando getTickets');
+    
+    try {
+      // Verificar usuario autenticado
+      const { data: { user } } = await this._supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('❌ No user found');
+        return { data: null, error: { message: 'Usuario no autenticado' } };
+      }
+
+      console.log(`🎯 Obteniendo tickets para usuario: ${user.id}`);
+      console.log('👤 Metadata del usuario:', user.user_metadata);
+
+      const userDepartment = user.user_metadata?.['department'];
+      
+      let query = this._supabase
+        .from('tickets')
+        .select('id, title, description, status, department, user_id, created_at, updated_at')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      // Si el usuario tiene un departamento específico (no es admin), 
+      // solo mostrar tickets de su departamento o tickets creados por él
+      if (userDepartment && userDepartment !== 'Administración') {
+        query = query.or(`department.eq.${userDepartment},user_id.eq.${user.id}`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('❌ Error en consulta:', error);
+        return { data: null, error };
+      }
+
+      console.log(`✅ ${data?.length || 0} tickets encontrados`);
+      return { data, error: null };
+      
+    } catch (error) {
+      console.error(`❌ Exception:`, error);
+      return { data: null, error };
+    }
+  }
+
+  // Obtener todos los tickets del usuario (método original mantenido para compatibilidad)
   async getUserTickets(useCache: boolean = true): Promise<{ data: Ticket[] | null; error: any }> {
     console.log('🔍 Servicio: Iniciando getUserTickets');
     
@@ -63,7 +109,7 @@ export class TicketService {
       // Ejecutar consulta optimizada - solo campos necesarios
       const { data, error } = await this._supabase
         .from('tickets')
-        .select('id, title, description, status, priority, user_id, created_at, updated_at')
+        .select('id, title, description, status, department, user_id, created_at, updated_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20); // Reducir a 20 para cargar más rápido
@@ -203,25 +249,47 @@ export class TicketService {
 
   // Crear comentario
   async createComment(commentData: CreateCommentData): Promise<{ data: TicketComment | null; error: any }> {
-    const { data: { user } } = await this._supabase.auth.getUser();
+    console.log('💬 Servicio: Creando comentario...', commentData);
     
-    if (!user) {
-      return { data: null, error: { message: 'Usuario no autenticado' } };
+    try {
+      const { data: { user } } = await this._supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('❌ Usuario no autenticado');
+        return { data: null, error: { message: 'Usuario no autenticado' } };
+      }
+
+      console.log('👤 Usuario autenticado:', user.id, user.email);
+
+      // Usar el nombre del metadata si existe, si no usar el email
+      const authorName = user.user_metadata?.['name'] || user.email || 'Usuario';
+
+      const newComment = {
+        ...commentData,
+        author_id: user.id,
+        author_name: authorName
+      };
+
+      console.log('📝 Datos del comentario a insertar:', newComment);
+
+      const { data, error } = await this._supabase
+        .from('ticket_comments')
+        .insert([newComment])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error insertando comentario:', error);
+        return { data: null, error };
+      }
+
+      console.log('✅ Comentario creado exitosamente:', data);
+      return { data, error: null };
+      
+    } catch (error) {
+      console.error('❌ Exception creando comentario:', error);
+      return { data: null, error };
     }
-
-    const newComment = {
-      ...commentData,
-      author_id: user.id,
-      author_name: user.email || 'Usuario'
-    };
-
-    const { data, error } = await this._supabase
-      .from('ticket_comments')
-      .insert([newComment])
-      .select()
-      .single();
-
-    return { data, error };
   }
 
   // Eliminar comentario

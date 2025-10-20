@@ -69,13 +69,13 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Prioridad
+              Departamento
             </label>
-            <select [(ngModel)]="filter.prioridad" name="priority" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-              <option value="">Todas</option>
-              <option value="Baja">Baja</option>
-              <option value="Media">Media</option>
-              <option value="Alta">Alta</option>  
+            <select [(ngModel)]="filter.departamento" name="department" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <option value="">Todos</option>
+              @for (department of departments; track department) {
+                <option [value]="department">{{ department }}</option>
+              }
             </select>
           </div>
         </form>
@@ -106,7 +106,7 @@
                 Estado
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Prioridad
+                Departamento
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Fecha
@@ -157,9 +157,9 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span [class]="getPriorityClass(ticket.priority)" 
+                    <span [class]="getDepartmentClass(ticket.department)" 
                           class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                      {{ ticket.priority }}
+                      {{ ticket.department }}
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">

@@ -25,7 +25,7 @@ export default class TicketList implements OnInit {
   filter = {
     title: '',
     estado: '',
-    prioridad: ''
+    departamento: ''
   };
 
   // Computed property para obtener tickets filtrados
@@ -43,9 +43,9 @@ export default class TicketList implements OnInit {
         matches = matches && ticket.status === this.filter.estado;
       }
 
-      // Filtrar por prioridad
-      if (this.filter.prioridad && this.filter.prioridad !== '') {
-        matches = matches && ticket.priority === this.filter.prioridad;
+      // Filtrar por departamento
+      if (this.filter.departamento && this.filter.departamento !== '') {
+        matches = matches && ticket.department === this.filter.departamento;
       }
 
       return matches;
@@ -62,7 +62,7 @@ export default class TicketList implements OnInit {
       this.error = null;
       this.tickets = [];
       
-      const { data, error } = await this._ticketService.getUserTickets(!forceReload);
+      const { data, error } = await this._ticketService.getTickets(!forceReload);
       
       if (error) {
         throw error;
@@ -93,18 +93,40 @@ export default class TicketList implements OnInit {
     }
   }
 
-  getPriorityClass(priority: string): string {
-    switch (priority) {
-      case 'Alta':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'Media':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'Baja':
+  getDepartmentClass(department: string): string {
+    switch (department) {
+      case 'Soporte Técnico':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'Recursos Humanos':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'Contabilidad':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'Ventas':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'Marketing':
+        return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
+      case 'Administración':
+        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
+      case 'Desarrollo':
+        return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200';
+      case 'General':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   }
+
+  // Lista de departamentos para el filtro
+  departments = [
+    'Soporte Técnico',
+    'Recursos Humanos',
+    'Contabilidad', 
+    'Ventas',
+    'Marketing',
+    'Administración',
+    'Desarrollo',
+    'General'
+  ];
 
   async logout() {
     try {

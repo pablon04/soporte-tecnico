@@ -38,4 +38,9 @@ export class AuthService {
     updatePassword(password: string) {
         return this._supabaseClient.auth.updateUser({ password });
     }
+
+    async getUserProfile() {
+        const { data: { user } } = await this._supabaseClient.auth.getUser();
+        return user;
+    }
 }

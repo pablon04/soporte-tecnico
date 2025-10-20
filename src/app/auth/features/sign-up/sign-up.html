@@ -16,6 +16,30 @@
           </h1>
           <form class="space-y-4 md:space-y-6" [formGroup]="form" (ngSubmit)="submit()">
             <div>
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Nombre completo</label
+              >
+              <input
+                type="text"
+                name="name"
+                id="name"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Tu nombre completo"
+                required=""
+                formControlName="name"
+              />
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                  @if (form.get('name')?.errors?.['required']) {
+                    El nombre es requerido.
+                  }
+                  @if (form.get('name')?.errors?.['minlength']) {
+                    El nombre debe tener al menos 2 caracteres.
+                  }
+                </p>
+              }
+            </div>
+            <div>
               <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >Tu email</label
               >
@@ -35,6 +59,30 @@
                   }
                   @if (form.get('email')?.errors?.['email']) {
                     Por favor ingresa un email válido.
+                  }
+                </p>
+              }
+            </div>
+            <div>
+              <label for="department" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Departamento</label
+              >
+              <select
+                name="department"
+                id="department"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                required=""
+                formControlName="department"
+              >
+                <option value="">Selecciona tu departamento</option>
+                @for (department of departments; track department) {
+                  <option [value]="department">{{ department }}</option>
+                }
+              </select>
+              @if (form.get('department')?.invalid && form.get('department')?.touched) {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                  @if (form.get('department')?.errors?.['required']) {
+                    Debes seleccionar un departamento.
                   }
                 </p>
               }

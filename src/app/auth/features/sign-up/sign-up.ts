@@ -4,8 +4,10 @@ import { FormBuilder, Validators, FormControl, ReactiveFormsModule } from '@angu
 import { AuthService } from '../../data-access/auth.service';
 
 interface SignUpForm {
+  name: FormControl<null | string>;
   email: FormControl<null | string>;
   password: FormControl<null | string>;
+  department: FormControl<null | string>;
 }
 
 @Component({
@@ -22,9 +24,22 @@ export default class SignUp {
   message: string | null = null;
   isLoading = false;
 
+  departments = [
+    'Soporte Técnico',
+    'Recursos Humanos', 
+    'Contabilidad',
+    'Ventas',
+    'Marketing',
+    'Administración',
+    'Desarrollo',
+    'General'
+  ];
+
   form = this._formBuilder.group<SignUpForm>({
+    name: this._formBuilder.control(null, [Validators.required, Validators.minLength(2)]),
     email: this._formBuilder.control(null, [Validators.required, Validators.email]),
     password: this._formBuilder.control(null, [Validators.required, Validators.minLength(6)]),
+    department: this._formBuilder.control(null, [Validators.required]),
   });
 
  async submit() {
@@ -37,6 +52,12 @@ export default class SignUp {
       const authResponse = await this._authService.signUp({
         email: this.form.value.email ?? '',
         password: this.form.value.password ?? '',
+        options: {
+          data: {
+            name: this.form.value.name ?? '',
+            department: this.form.value.department ?? ''
+          }
+        }
       });
 
       if (authResponse.error) throw authResponse.error;

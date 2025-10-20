@@ -6,7 +6,7 @@ import { TicketService, CreateTicketData } from '../../data-access/ticket.servic
 interface CreateTicketForm {
   title: FormControl<null | string>;
   description: FormControl<null | string>;
-  priority: FormControl<'Baja' | 'Media' | 'Alta' | null>;
+  department: FormControl<string | null>;
 }
 
 @Component({
@@ -23,10 +23,21 @@ export default class CreateTicket {
   message: string | null = null;
   isLoading = false;
 
+  departments = [
+    'Soporte Técnico',
+    'Recursos Humanos',
+    'Contabilidad',
+    'Ventas',
+    'Marketing',
+    'Administración',
+    'Desarrollo',
+    'General'
+  ];
+
   form = this._formBuilder.group<CreateTicketForm>({
     title: this._formBuilder.control(null, [Validators.required, Validators.minLength(2)]),
     description: this._formBuilder.control(null, [Validators.required, Validators.minLength(2)]),
-    priority: this._formBuilder.control('Media' as 'Media', [Validators.required])
+    department: this._formBuilder.control(null, [Validators.required])
   });
 
   async submit() {
@@ -39,7 +50,7 @@ export default class CreateTicket {
       const ticketData: CreateTicketData = {
         title: this.form.value.title!,
         description: this.form.value.description!,
-        priority: this.form.value.priority!
+        department: this.form.value.department!
       };
 
       const { data, error } = await this._ticketService.createTicket(ticketData);
