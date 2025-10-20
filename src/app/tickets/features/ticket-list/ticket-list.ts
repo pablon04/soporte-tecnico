@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../auth/data-access/auth.service';
 import { TicketService, Ticket } from '../../data-access/ticket.service';
 
 @Component({
   selector: 'app-ticket-list',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, FormsModule],
   templateUrl: './ticket-list.html',
   styleUrl: './ticket-list.css'
 })
@@ -19,6 +20,37 @@ export default class TicketList implements OnInit {
   tickets: Ticket[] = [];
   isLoading = false;
   error: string | null = null;
+
+  // Propiedades de filtro
+  filter = {
+    title: '',
+    estado: '',
+    prioridad: ''
+  };
+
+  // Computed property para obtener tickets filtrados
+  get filteredTickets(): Ticket[] {
+    return this.tickets.filter(ticket => {
+      let matches = true;
+
+      // Filtrar por título
+      if (this.filter.title) {
+        matches = matches && ticket.title.toLowerCase().includes(this.filter.title.toLowerCase());
+      }
+
+      // Filtrar por estado
+      if (this.filter.estado && this.filter.estado !== '') {
+        matches = matches && ticket.status === this.filter.estado;
+      }
+
+      // Filtrar por prioridad
+      if (this.filter.prioridad && this.filter.prioridad !== '') {
+        matches = matches && ticket.priority === this.filter.prioridad;
+      }
+
+      return matches;
+    });
+  }
 
   async ngOnInit() {
     await this.loadTickets();
@@ -81,6 +113,12 @@ export default class TicketList implements OnInit {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
+  }
+
+  onFilterTickets() {
+    // Este método se ejecuta cuando el usuario hace submit del formulario de filtros
+    // Como usamos getter computed, no necesitamos hacer nada aquí
+    // pero podríamos agregar lógica adicional si es necesario
   }
 
   onRefreshTickets() {

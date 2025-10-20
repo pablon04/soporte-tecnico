@@ -31,7 +31,58 @@
       </div>
     </div>
 
-    <!-- Tickets Table -->
+
+    <!-- Filtrado -->
+    <div class="bg-white mb-4 dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Filtros de Tickets
+          </h2>
+        </div>
+      </div>
+      
+      <div class="px-6 py-4">
+        <form (ngSubmit)="onFilterTickets()" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Título
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="filter.title" 
+              name="title" 
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+              placeholder="Buscar por título" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Estado
+            </label>
+            <select [(ngModel)]="filter.estado" name="status" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <option value="">Todos</option>
+              <option value="Abierto">Abierto</option>
+              <option value="En progreso">En Progreso</option>
+              <option value="Cerrado">Cerrado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Prioridad
+            </label>
+            <select [(ngModel)]="filter.prioridad" name="priority" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <option value="">Todas</option>
+              <option value="Baja">Baja</option>
+              <option value="Media">Media</option>
+              <option value="Alta">Alta</option>  
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Listado Tickets -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex justify-between items-center">
@@ -66,64 +117,68 @@
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            @for (ticket of tickets; track ticket.id) {
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                  #{{ ticket.id }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {{ ticket.title }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span [class]="getStatusClass(ticket.status)" 
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                    {{ ticket.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span [class]="getPriorityClass(ticket.priority)" 
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                    {{ ticket.priority }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                  {{ ticket.created_at | date:'dd/MM/yyyy' }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button 
-                    [routerLink]="[ticket.id]"
-                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
-                    Ver Detalles
-                  </button>
+            @if (isLoading) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  🔄 Cargando tickets...
                 </td>
               </tr>
+            } @else if (error) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-red-500">
+                  ❌ {{ error }}
+                </td>
+              </tr>
+            } @else if (filteredTickets.length === 0 && tickets.length > 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  🔍 No se encontraron tickets con los filtros aplicados.
+                </td>
+              </tr>
+            } @else if (filteredTickets.length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  📝 No tienes tickets creados. ¡Crea tu primer ticket!
+                </td>
+              </tr>
+            } @else {
+              @for (ticket of filteredTickets; track ticket.id) {
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                    #{{ ticket.id }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ ticket.title }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span [class]="getStatusClass(ticket.status)" 
+                          class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ ticket.status }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span [class]="getPriorityClass(ticket.priority)" 
+                          class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ ticket.priority }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    {{ ticket.created_at | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button 
+                      [routerLink]="[ticket.id]"
+                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
+                      Ver Detalles
+                    </button>
+                  </td>
+                </tr>
+              }
             }
           </tbody>
         </table>
     </div>
 
-      <!-- Estados después de la tabla -->
-      @if (error && !isLoading) {
-        <div class="px-6 py-8 text-center">
-          <p class="text-red-600 dark:text-red-400 mb-4">{{ error }}</p>
-          <button 
-            (click)="loadTickets(true)"
-            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            Reintentar
-          </button>
-        </div>
-      }
-
-      @if (tickets.length === 0 && !isLoading && !error) {
-        <div class="px-6 py-8 text-center">
-          <p class="text-gray-500 dark:text-gray-400">No hay tickets disponibles</p>
-          <button 
-            routerLink="create"
-            class="mt-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            Crear tu primer ticket
-          </button>
-        </div>
-      }
     </div>
   </div>
 </div>
