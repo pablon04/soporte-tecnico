@@ -37,7 +37,7 @@
                 <span>Creado: {{ ticket.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
             </div>
-            <div class="flex gap-2 flex-shrink-0 flex-wrap">
+            <div class="flex gap-2  flex-wrap">
               <span [class]="getStatusClass(ticket.status)" 
                     class="px-3 py-1 text-sm font-medium rounded-full">
                 {{ ticket.status }}
