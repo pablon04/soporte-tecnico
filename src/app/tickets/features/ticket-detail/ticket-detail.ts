@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -16,6 +16,7 @@ export default class TicketDetail implements OnInit {
   private _ticketService = inject(TicketService);
   private _formBuilder = inject(FormBuilder);
   private _cdr = inject(ChangeDetectorRef);
+  @ViewChild('commentAttachmentInput') commentAttachmentInput?: ElementRef<HTMLInputElement>;
   
   ticket: Ticket | null = null;
   comments: TicketComment[] = [];
@@ -24,6 +25,10 @@ export default class TicketDetail implements OnInit {
   error: string | null = null;
   isUpdatingStatus = false;
   isAddingComment = false;
+  commentAttachmentFile: File | null = null;
+  commentAttachmentPreview: { name: string; size: number } | null = null;
+  commentAttachmentError: string | null = null;
+  readonly maxAttachmentSize = 10 * 1024 * 1024; // 10MB
 
   // Formulario para comentarios
   commentForm = this._formBuilder.group({
@@ -165,10 +170,22 @@ export default class TicketDetail implements OnInit {
     try {
       this.isAddingComment = true;
       this._cdr.detectChanges();
+      this.commentAttachmentError = null;
+      
+      let attachmentUrl: string | null = null;
+      let attachmentName: string | null = null;
+
+      if (this.commentAttachmentFile) {
+        const uploadResult = await this._ticketService.uploadAttachment(this.commentAttachmentFile, 'comments');
+        attachmentUrl = uploadResult?.url ?? null;
+        attachmentName = this.commentAttachmentFile.name;
+      }
       
       const { data, error } = await this._ticketService.createComment({
         ticket_id: this.ticketId,
-        message: this.commentForm.value.message!
+        message: this.commentForm.value.message!,
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName
       });
 
       if (error) {
@@ -180,6 +197,7 @@ export default class TicketDetail implements OnInit {
         console.log('✅ Comentario agregado:', data);
         this.comments.push(data);
         this.commentForm.reset();
+        this.clearCommentAttachment();
         this._cdr.detectChanges();
         
         // Opcional: recargar todos los comentarios para asegurar sincronización
@@ -193,6 +211,42 @@ export default class TicketDetail implements OnInit {
       this.isAddingComment = false;
       this._cdr.detectChanges();
     }
+  }
+
+  onCommentAttachmentSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+    this.commentAttachmentError = null;
+
+    if (file && file.size > this.maxAttachmentSize) {
+      this.commentAttachmentError = 'El archivo supera el límite de 10MB.';
+      this.clearCommentAttachment(false);
+      this._cdr.detectChanges();
+      return;
+    }
+
+    this.commentAttachmentFile = file;
+    this.commentAttachmentPreview = file ? { name: file.name, size: file.size } : null;
+    this._cdr.detectChanges();
+  }
+
+  clearCommentAttachment(resetError: boolean = true) {
+    this.commentAttachmentFile = null;
+    this.commentAttachmentPreview = null;
+    if (resetError) {
+      this.commentAttachmentError = null;
+    }
+    if (this.commentAttachmentInput) {
+      this.commentAttachmentInput.nativeElement.value = '';
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (!bytes) return '0 KB';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const value = bytes / Math.pow(1024, exponent);
+    return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
   }
 
   async deleteTicket() {

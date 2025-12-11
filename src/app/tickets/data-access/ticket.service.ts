@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../shared/data-access/supabase.service';
+import { environment } from '../../../environments/environment';
 
 export interface Ticket {
   id: string;
@@ -10,6 +11,8 @@ export interface Ticket {
   user_id: string;
   created_at: string;
   updated_at: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
 }
 
 export interface TicketComment {
@@ -19,12 +22,16 @@ export interface TicketComment {
   author_name: string;
   message: string;
   created_at: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
 }
 
 export interface CreateTicketData {
   title: string;
   description: string;
   department: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
 }
 
 export interface UpdateTicketData {
@@ -37,11 +44,49 @@ export interface UpdateTicketData {
 export interface CreateCommentData {
   ticket_id: string;
   message: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
   private _supabase = inject(SupabaseService).supabaseClient;
+  private readonly _attachmentsBucket = environment.SUPABASE_ATTACHMENTS_BUCKET || 'ticket-attachments';
+
+  async uploadAttachment(file: File, folder: 'tickets' | 'comments'): Promise<{ path: string; url: string } | null> {
+    if (!file) {
+      return null;
+    }
+
+    const uniqueId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}`;
+    const sanitizedName = file.name.replace(/\s+/g, '-').toLowerCase();
+    const fullPath = `${folder}/${uniqueId}-${sanitizedName}`;
+
+    const { error } = await this._supabase
+      .storage
+      .from(this._attachmentsBucket)
+      .upload(fullPath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('❌ Error subiendo adjunto:', error);
+      throw error;
+    }
+
+    const { data } = this._supabase
+      .storage
+      .from(this._attachmentsBucket)
+      .getPublicUrl(fullPath);
+
+    return {
+      path: fullPath,
+      url: data.publicUrl
+    };
+  }
 
   // =================== TICKETS ===================
   
@@ -65,7 +110,7 @@ export class TicketService {
       
       let query = this._supabase
         .from('tickets')
-        .select('id, title, description, status, department, user_id, created_at, updated_at')
+        .select('id, title, description, status, department, user_id, created_at, updated_at, attachment_url, attachment_name')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -109,7 +154,7 @@ export class TicketService {
       // Ejecutar consulta optimizada - solo campos necesarios
       const { data, error } = await this._supabase
         .from('tickets')
-        .select('id, title, description, status, department, user_id, created_at, updated_at')
+        .select('id, title, description, status, department, user_id, created_at, updated_at, attachment_url, attachment_name')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20); // Reducir a 20 para cargar más rápido

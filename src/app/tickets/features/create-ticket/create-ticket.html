@@ -88,6 +88,37 @@
           }
         </div>
 
+        <!-- Adjunto opcional -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Archivo adjunto (opcional)
+          </label>
+          <input
+            #ticketAttachmentInput
+            type="file"
+            (change)="onAttachmentSelected($event)"
+            class="w-full text-sm text-gray-700 dark:text-gray-200 file:mr-4 file:rounded-lg file:border-0 file:bg-green-50 file:px-4 file:py-2 file:text-green-700 hover:file:bg-green-100 dark:file:bg-green-900 dark:file:text-green-100"
+          />
+          @if (attachmentPreview) {
+            <div class="mt-2 flex items-center justify-between rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+              <div>
+                <p class="font-medium">{{ attachmentPreview.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(attachmentPreview.size) }}</p>
+              </div>
+              <button type="button" (click)="clearAttachment()" class="text-red-500 hover:text-red-600 text-xs">
+                Quitar
+              </button>
+            </div>
+          } @else {
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Tamaño máximo permitido 10MB.
+            </p>
+          }
+          @if (attachmentError) {
+            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ attachmentError }}</p>
+          }
+        </div>
+
         <!-- Botones -->
         <div class="flex gap-4 pt-4">
           <button
