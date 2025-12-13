@@ -14,6 +14,14 @@ export const serverRoutes: ServerRoute[] = [
     path: 'auth/sign-up',
     renderMode: RenderMode.Prerender
   },
+  {
+    path: 'auth/password-recovery',
+    renderMode: RenderMode.Prerender
+  },
+  {
+    path: 'auth/update-password',
+    renderMode: RenderMode.Prerender
+  },
   // Todo lo demás usar Client Side Rendering para Vercel
   {
     path: '**',
