@@ -25,7 +25,7 @@ function passwordMatchValidator(control: AbstractControl) {
   templateUrl: './update-password.html',
   styleUrl: './update-password.css'
 })
-export default class UpdatePassword implements OnInit {
+export default class UpdatePassword{
   private _formBuilder = inject(FormBuilder);
   private _authService = inject(AuthService);
   private _router = inject(Router);
@@ -41,10 +41,6 @@ export default class UpdatePassword implements OnInit {
     confirmPassword: this._formBuilder.control(null, [Validators.required]),
   }, { validators: passwordMatchValidator });
 
-  ngOnInit() {
-    // Verificar si hay una sesión activa (usuario vino del enlace de email)
-    this.checkSession();
-  }
 
   async checkSession() {
     try {
@@ -110,6 +106,6 @@ export default class UpdatePassword implements OnInit {
 
   get passwordMismatch() {
     return this.form.errors?.['passwordMismatch'] && 
-           this.form.get('confirmPassword')?.touched;
+          this.form.get('confirmPassword')?.touched;
   }
 }
