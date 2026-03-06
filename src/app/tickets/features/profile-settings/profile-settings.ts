@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../auth/data-access/auth.service';
@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/data-access/auth.service';
 export default class ProfileSettings implements OnInit {
   private _authService = inject(AuthService);
   private _router = inject(Router);
+  private _cdr = inject(ChangeDetectorRef);
 
   // Datos actuales (modo vista)
   fullName = '';
@@ -48,6 +49,7 @@ export default class ProfileSettings implements OnInit {
       this.email = user.email || '';
       this.department = user.user_metadata?.['department'] || '';
     }
+    this._cdr.detectChanges();
   }
 
   startEditing() {
