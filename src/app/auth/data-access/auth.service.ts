@@ -43,4 +43,11 @@ export class AuthService {
         const { data: { user } } = await this._supabaseClient.auth.getUser();
         return user;
     }
+
+    updateProfile(data: { email?: string; full_name?: string }) {
+        return this._supabaseClient.auth.updateUser({
+            email: data.email,
+            data: { full_name: data.full_name }
+        });
+    }
 }

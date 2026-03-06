@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../auth/data-access/auth.service';
 import { TicketService, Ticket } from '../../data-access/ticket.service';
+import { User } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-ticket-list',
@@ -20,6 +21,8 @@ export default class TicketList implements OnInit {
   tickets: Ticket[] = [];
   isLoading = false;
   error: string | null = null;
+  currentUser: User | null = null;
+  showProfileMenu = false;
 
   // Propiedades de filtro
   filter = {
@@ -54,6 +57,29 @@ export default class TicketList implements OnInit {
 
   async ngOnInit() {
     await this.loadTickets();
+    this.currentUser = await this._authService.getUserProfile();
+  }
+
+  get userInitial(): string {
+    const name = this.currentUser?.user_metadata?.['full_name'] || this.currentUser?.email || '';
+    return name.charAt(0).toUpperCase();
+  }
+
+  get userDisplayName(): string {
+    return this.currentUser?.user_metadata?.['full_name'] || this.currentUser?.email || 'Usuario';
+  }
+
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+  }
+
+  closeProfileMenu() {
+    this.showProfileMenu = false;
+  }
+
+  goToSettings() {
+    this.showProfileMenu = false;
+    this._router.navigateByUrl('/ticket/settings');
   }
 
   async loadTickets(forceReload: boolean = false) {

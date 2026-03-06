@@ -10,6 +10,10 @@ export default [
         loadComponent: () => import('./features/create-ticket/create-ticket')
     },
     {
+        path: 'settings',
+        loadComponent: () => import('./features/profile-settings/profile-settings')
+    },
+    {
         path: ':id',
         loadComponent: () => import('./features/ticket-detail/ticket-detail')
     }

@@ -7,8 +7,8 @@
           Sistema de Soporte Técnico
         </h1>
       </div>
-      <div class="flex gap-4">
-        <button 
+      <div class="flex gap-4 items-center">
+        <button
           (click)="onRefreshTickets()"
           [disabled]="isLoading"
           class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors">
@@ -18,16 +18,45 @@
             🔄 Actualizar
           }
         </button>
-        <button 
+        <button
           routerLink="create"
           class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
           + Crear Ticket
         </button>
-        <button 
-          (click)="logout()"
-          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-          Cerrar Sesión
-        </button>
+
+        <!-- Overlay para cerrar el menú al hacer click fuera -->
+        @if (showProfileMenu) {
+          <div class="fixed inset-0 z-10" (click)="closeProfileMenu()"></div>
+        }
+
+        <!-- Menú de perfil -->
+        <div class="relative z-20">
+          <button
+            (click)="toggleProfileMenu()"
+            class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+            title="Mi perfil">
+            {{ userInitial }}
+          </button>
+
+          @if (showProfileMenu) {
+            <div class="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ userDisplayName }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ currentUser?.email }}</p>
+              </div>
+              <button
+                (click)="goToSettings()"
+                class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                ⚙️ Configuración
+              </button>
+              <button
+                (click)="logout()"
+                class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                🚪 Cerrar Sesión
+              </button>
+            </div>
+          }
+        </div>
       </div>
     </div>
 
