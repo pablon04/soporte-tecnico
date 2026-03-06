@@ -11,7 +11,7 @@
         <button
           (click)="onRefreshTickets()"
           [disabled]="isLoading"
-          class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
           @if (isLoading) {
             🔄 Cargando...
           } @else {
@@ -20,7 +20,7 @@
         </button>
         <button
           routerLink="create"
-          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
           + Crear Ticket
         </button>
 
@@ -33,7 +33,7 @@
         <div class="relative z-20">
           <button
             (click)="toggleProfileMenu()"
-            class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+            class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
             title="Mi perfil">
             {{ userInitial }}
           </button>
@@ -46,12 +46,12 @@
               </div>
               <button
                 (click)="goToSettings()"
-                class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                class="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 ⚙️ Configuración
               </button>
               <button
                 (click)="logout()"
-                class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                class="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 🚪 Cerrar Sesión
               </button>
             </div>
@@ -81,7 +81,7 @@
               type="text" 
               [(ngModel)]="filter.title" 
               name="title" 
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+              class="cursor-pointerw-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
               placeholder="Buscar por título" />
           </div>
 
@@ -89,7 +89,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Estado
             </label>
-            <select [(ngModel)]="filter.estado" name="status" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <select [(ngModel)]="filter.estado" name="status" class="cursor-pointer w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
               <option value="">Todos</option>
               <option value="Abierto">Abierto</option>
               <option value="En progreso">En Progreso</option>
@@ -100,7 +100,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Departamento
             </label>
-            <select [(ngModel)]="filter.departamento" name="department" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <select [(ngModel)]="filter.departamento" name="department" class="cursor-pointer w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
               <option value="">Todos</option>
               @for (department of departments; track department) {
                 <option [value]="department">{{ department }}</option>
@@ -197,7 +197,7 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button 
                       [routerLink]="[ticket.id]"
-                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
+                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4 cursor-pointer">
                       Ver Detalles
                     </button>
                   </td>
