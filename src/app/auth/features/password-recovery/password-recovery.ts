@@ -17,7 +17,7 @@ export default class PasswordRecovery {
   private _formBuilder = inject(FormBuilder);
   private _authService = inject(AuthService);
 
-  message = signal<string | null>(null);
+  message = signal('');
 
   form = this._formBuilder.group<PasswordRecoveryForm>({
     email: this._formBuilder.control(null, [Validators.required, Validators.email]),
