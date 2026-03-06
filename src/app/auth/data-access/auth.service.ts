@@ -44,10 +44,10 @@ export class AuthService {
         return user;
     }
 
-    updateProfile(data: { email?: string; full_name?: string }) {
+    updateProfile(data: { email?: string; full_name?: string; department?: string }) {
         return this._supabaseClient.auth.updateUser({
             email: data.email,
-            data: { full_name: data.full_name }
+            data: { full_name: data.full_name, department: data.department }
         });
     }
 }

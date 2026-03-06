@@ -72,8 +72,10 @@ export default class SignUp {
           this.message = 'Este email ya está registrado. Intenta iniciar sesión o usa otro email.';
         } else if (error.message.includes('weak password')) {
           this.message = 'La contraseña es muy débil. Debe tener al menos 6 caracteres.';
+        } else if (error.message.includes('rate limit') || error.message.includes('Too Many Requests')) {
+          this.message = 'Has excedido el límite de registros. Por favor espera unos minutos e inténtalo de nuevo.';
         } else {
-          this.message = 'Error al crear la cuenta. Por favor intenta de nuevo.';
+          this.message = `Error al crear la cuenta: ${error.message}`;
         }
       }
     } finally {
