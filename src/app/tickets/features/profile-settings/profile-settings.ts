@@ -61,12 +61,14 @@ export default class ProfileSettings implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
     this.isEditing = true;
+    this._cdr.detectChanges();
   }
 
   cancelEditing() {
     this.isEditing = false;
     this.successMessage = '';
     this.errorMessage = '';
+    this._cdr.detectChanges();
   }
 
   async saveProfile() {
@@ -105,6 +107,7 @@ export default class ProfileSettings implements OnInit {
       this.errorMessage = error?.message || 'Error al actualizar el perfil.';
     } finally {
       this.isLoading = false;
+      this._cdr.detectChanges();
     }
   }
 
