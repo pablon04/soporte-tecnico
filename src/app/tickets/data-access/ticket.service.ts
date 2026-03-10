@@ -8,6 +8,7 @@ export interface Ticket {
   description: string;
   status: 'Abierto' | 'En progreso' | 'Cerrado';
   department: string;
+  origin_department?: string | null;
   user_id: string;
   created_at: string;
   updated_at: string;
@@ -30,6 +31,7 @@ export interface CreateTicketData {
   title: string;
   description: string;
   department: string;
+  origin_department?: string | null;
   attachment_url?: string | null;
   attachment_name?: string | null;
 }
@@ -219,7 +221,8 @@ export class TicketService {
     const newTicket = {
       ...ticketData,
       user_id: user.id,
-      status: 'Abierto' as const
+      status: 'Abierto' as const,
+      origin_department: ticketData.origin_department ?? user.user_metadata?.['department'] ?? null
     };
 
     const { data, error } = await this._supabase

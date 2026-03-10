@@ -42,10 +42,18 @@
                     class="px-3 py-1 text-sm font-medium rounded-full">
                 {{ ticket.status }}
               </span>
-              <span [class]="getDepartmentClass(ticket.department)" 
-                    class="px-3 py-1 text-sm font-medium rounded-full">
-                {{ ticket.department }}
+              <span [class]="getDepartmentClass(ticket.department)"
+                    class="px-3 py-1 text-sm font-medium rounded-full"
+                    title="Destino">
+                → {{ ticket.department }}
               </span>
+              @if (ticket.origin_department) {
+                <span [class]="getDepartmentClass(ticket.origin_department)"
+                      class="px-3 py-1 text-sm font-medium rounded-full"
+                      title="Origen">
+                  ← {{ ticket.origin_department }}
+                </span>
+              }
             </div>
           </div>
         </div>

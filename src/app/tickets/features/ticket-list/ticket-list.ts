@@ -23,6 +23,7 @@ export default class TicketList implements OnInit {
   error: string | null = null;
   currentUser: User | null = null;
   showProfileMenu = false;
+  activeTab: 'recibidos' | 'creados' = 'recibidos';
 
   // Propiedades de filtro
   filter = {
@@ -31,28 +32,38 @@ export default class TicketList implements OnInit {
     departamento: ''
   };
 
+  get ticketsRecibidos(): Ticket[] {
+    const dept = this.currentUser?.user_metadata?.['department'];
+    return this.tickets.filter(t => t.department === dept);
+  }
+
+  get ticketsCreados(): Ticket[] {
+    return this.tickets.filter(t => t.user_id === this.currentUser?.id);
+  }
+
+  get baseTickets(): Ticket[] {
+    return this.activeTab === 'recibidos' ? this.ticketsRecibidos : this.ticketsCreados;
+  }
+
   get isGeneral(): boolean {
     return this.currentUser?.user_metadata?.['department'] === 'General';
   }
 
   get ticketsAbiertos(): number {
-    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
-    return base.filter(t => t.status === 'Abierto').length;
+    return this.baseTickets.filter(t => t.status === 'Abierto').length;
   }
 
   get ticketsEnProgreso(): number {
-    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
-    return base.filter(t => t.status === 'En progreso').length;
+    return this.baseTickets.filter(t => t.status === 'En progreso').length;
   }
 
   get ticketsCerrados(): number {
-    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
-    return base.filter(t => t.status === 'Cerrado').length;
+    return this.baseTickets.filter(t => t.status === 'Cerrado').length;
   }
 
   // Computed property para obtener tickets filtrados
   get filteredTickets(): Ticket[] {
-    return this.tickets.filter(ticket => {
+    return this.baseTickets.filter(ticket => {
       let matches = true;
 
       // Filtrar por título
