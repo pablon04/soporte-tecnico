@@ -24,6 +24,14 @@
           + Crear Ticket
         </button>
 
+        @if (isGeneral) {
+          <button
+            routerLink="admin"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
+            Administrador
+          </button>
+        }
+
         <!-- Overlay para cerrar el menú al hacer click fuera -->
         @if (showProfileMenu) {
           <div class="fixed inset-0 z-10" (click)="closeProfileMenu()"></div>
@@ -60,6 +68,22 @@
       </div>
     </div>
 
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <div class="bg-red-100 dark:bg-red-900 rounded-lg px-5 py-4 flex items-center justify-between shadow">
+        <span class="text-red-800 dark:text-red-200 font-semibold text-sm">Abiertos</span>
+        <span class="text-red-800 dark:text-red-200 font-bold text-2xl">{{ ticketsAbiertos }}</span>
+      </div>
+      <div class="bg-yellow-100 dark:bg-yellow-900 rounded-lg px-5 py-4 flex items-center justify-between shadow">
+        <span class="text-yellow-800 dark:text-yellow-200 font-semibold text-sm">En Progreso</span>
+        <span class="text-yellow-800 dark:text-yellow-200 font-bold text-2xl">{{ ticketsEnProgreso }}</span>
+      </div>
+      <div class="bg-green-100 dark:bg-green-900 rounded-lg px-5 py-4 flex items-center justify-between shadow">
+        <span class="text-green-800 dark:text-green-200 font-semibold text-sm">Cerrados</span>
+        <span class="text-green-800 dark:text-green-200 font-bold text-2xl">{{ ticketsCerrados }}</span>
+      </div>
+    </div>
 
     <!-- Filtrado -->
     <div class="bg-white mb-4 dark:bg-gray-800 rounded-lg shadow overflow-hidden">

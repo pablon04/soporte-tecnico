@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="container mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Panel de Administrador</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Resumen de tickets por departamento</p>
+      </div>
+      <button
+        routerLink="/ticket"
+        class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
+        ← Volver
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <p class="text-center text-gray-500 dark:text-gray-400 py-16">🔄 Cargando datos...</p>
+    } @else if (error) {
+      <p class="text-center text-red-500 py-16">❌ {{ error }}</p>
+    } @else {
+      <div class="flex flex-col gap-4">
+        @for (dept of getDeptStats(); track dept.name) {
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ dept.name }}</h2>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-red-100 dark:bg-red-900 rounded-lg px-4 py-3 flex items-center justify-between">
+                <span class="text-red-800 dark:text-red-200 text-sm font-medium">Abiertos</span>
+                <span class="text-red-800 dark:text-red-200 font-bold text-xl">{{ dept.abiertos }}</span>
+              </div>
+              <div class="bg-yellow-100 dark:bg-yellow-900 rounded-lg px-4 py-3 flex items-center justify-between">
+                <span class="text-yellow-800 dark:text-yellow-200 text-sm font-medium">En Progreso</span>
+                <span class="text-yellow-800 dark:text-yellow-200 font-bold text-xl">{{ dept.enProgreso }}</span>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900 rounded-lg px-4 py-3 flex items-center justify-between">
+                <span class="text-green-800 dark:text-green-200 text-sm font-medium">Cerrados</span>
+                <span class="text-green-800 dark:text-green-200 font-bold text-xl">{{ dept.cerrados }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

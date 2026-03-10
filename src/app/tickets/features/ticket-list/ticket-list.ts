@@ -31,6 +31,25 @@ export default class TicketList implements OnInit {
     departamento: ''
   };
 
+  get isGeneral(): boolean {
+    return this.currentUser?.user_metadata?.['department'] === 'General';
+  }
+
+  get ticketsAbiertos(): number {
+    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
+    return base.filter(t => t.status === 'Abierto').length;
+  }
+
+  get ticketsEnProgreso(): number {
+    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
+    return base.filter(t => t.status === 'En progreso').length;
+  }
+
+  get ticketsCerrados(): number {
+    const base = this.isGeneral ? this.tickets.filter(t => t.department === 'General') : this.tickets;
+    return base.filter(t => t.status === 'Cerrado').length;
+  }
+
   // Computed property para obtener tickets filtrados
   get filteredTickets(): Ticket[] {
     return this.tickets.filter(ticket => {

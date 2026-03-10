@@ -116,7 +116,7 @@ export class TicketService {
 
       // Si el usuario tiene un departamento específico (no es admin), 
       // solo mostrar tickets de su departamento o tickets creados por él
-      if (userDepartment && userDepartment !== 'Administración') {
+      if (userDepartment && userDepartment !== 'General') {
         query = query.or(`department.eq.${userDepartment},user_id.eq.${user.id}`);
       }
 

@@ -14,6 +14,10 @@ export default [
         loadComponent: () => import('./features/profile-settings/profile-settings')
     },
     {
+        path: 'admin',
+        loadComponent: () => import('./features/admin-dashboard/admin-dashboard')
+    },
+    {
         path: ':id',
         loadComponent: () => import('./features/ticket-detail/ticket-detail')
     }
