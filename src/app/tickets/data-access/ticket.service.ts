@@ -112,7 +112,7 @@ export class TicketService {
       
       let query = this._supabase
         .from('tickets')
-        .select('id, title, description, status, department, user_id, created_at, updated_at, attachment_url, attachment_name')
+        .select('id, title, description, status, department, origin_department, user_id, created_at, updated_at, attachment_url, attachment_name')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -156,7 +156,7 @@ export class TicketService {
       // Ejecutar consulta optimizada - solo campos necesarios
       const { data, error } = await this._supabase
         .from('tickets')
-        .select('id, title, description, status, department, user_id, created_at, updated_at, attachment_url, attachment_name')
+        .select('id, title, description, status, department, origin_department, user_id, created_at, updated_at, attachment_url, attachment_name')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20); // Reducir a 20 para cargar más rápido
